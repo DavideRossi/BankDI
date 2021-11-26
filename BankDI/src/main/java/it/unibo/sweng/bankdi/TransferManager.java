@@ -4,8 +4,8 @@ public class TransferManager {
 	
 	//transfer from a local account to a remote one
 	public boolean makeTransfer(Account sourceAccount, String destinationAccountCode, double amount) {
-		SETRemoteBankOperator bankOperator = new SETRemoteBankOperator();
-		FileTransactionLogger transactionLogger = new FileTransactionLogger();
+		RemoteBankOperator bankOperator = new SETRemoteBankOperator();
+		TransactionLogger transactionLogger = new FileTransactionLogger();
 
 		if(sourceAccount.getBalance() >= amount) {
 			if(bankOperator.transfer(destinationAccountCode, amount)) {
