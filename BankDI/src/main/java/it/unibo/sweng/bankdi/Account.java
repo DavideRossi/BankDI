@@ -4,11 +4,17 @@ import java.util.Optional;
 
 public class Account {
 	private static final int ID_LIMIT = 12345;
+	private static final String EMAIL_DEFAULT = "";
+	private static final String PHONE_NUMBER_DEFAULT = "";
+	private static final NotificationType NOTIFICATION_PREFERENCE_DEFAULT = NotificationType.EMAIL;
 
 	public static class AccountBuilder {
 		private Optional<String> owner = Optional.empty();
 		private Optional<Double> balance = Optional.empty();
 		private Optional<Integer> id = Optional.empty();
+		private Optional<String> email = Optional.empty();
+		private Optional<String> phoneNumber = Optional.empty();
+		private Optional<NotificationType> notificationPreference = Optional.empty();
 
 		public static AccountBuilder createBuilder() {
 			return new AccountBuilder();
@@ -31,25 +37,50 @@ public class Account {
 			this.id = Optional.of(id);
 			return this;
 		}
+		
+		public AccountBuilder setEmail(String email) {
+			this.email = Optional.of(email);
+			return this;
+		}
+		
+		public AccountBuilder setPhoneNumber(String phoneNumber) {
+			this.phoneNumber = Optional.of(phoneNumber);
+			return this;
+		}
+		
+		public AccountBuilder setNotificationPreference(NotificationType notificationPreference) {
+			this.notificationPreference = Optional.of(notificationPreference);
+			return this;
+		}
 
 		public Account build() {
 			if(this.owner.isEmpty()) {
 				throw new IllegalArgumentException("Owner must be set");
 			}
 			String owner = this.owner.get();
+			String email = this.email.orElse(EMAIL_DEFAULT);
+			String phoneNumber = this.phoneNumber.orElse(PHONE_NUMBER_DEFAULT);
 			int id = this.id.orElse((int)(Math.random() * ID_LIMIT));
 			double balance = this.balance.orElse(.0);
-			return new Account(owner, id, balance);
+			NotificationType notificationPreference = this.notificationPreference.orElse(NOTIFICATION_PREFERENCE_DEFAULT);
+			return new Account(owner, email, phoneNumber, id, balance, notificationPreference);
 		}
 	}
+
 	private String owner;
 	private double balance;
 	private int id;
+	private String email;
+	private String phoneNumber;
+	private NotificationType notificationPreference;
 	
-	private Account(String owner, int id, double balance) {
+	private Account(String owner, String email, String phoneNumber, int id, double balance, NotificationType notificationPreference) {
 		this.owner = owner;
+		this.email = email;
+		this.phoneNumber = phoneNumber;
 		this.id = id;
 		this.balance = balance;
+		this.notificationPreference = notificationPreference;
 	}
 
 	public boolean withdraw(double amount) {
@@ -67,6 +98,22 @@ public class Account {
 	
 	public void setBalance(double balance) {
 		this.balance = balance;
+	}
+	
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+	
+	public String getEmail() {
+		return email;
+	}
+	
+	public NotificationType getNotificationPreference() {
+		return notificationPreference;
+	}
+	
+	public void setNotificationPreference(NotificationType notificationPreference) {
+		this.notificationPreference = notificationPreference;
 	}
 	
 	@Override

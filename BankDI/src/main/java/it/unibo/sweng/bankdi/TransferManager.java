@@ -1,28 +1,34 @@
 package it.unibo.sweng.bankdi;
 
+import com.google.inject.Inject;
+
 public class TransferManager {
 	private RemoteBankOperator bankOperator;
-	private TransactionLogger transactionLogger;
+	private Factory<Notificator> notificatorFactory;
 
-	public TransferManager(RemoteBankOperator bankOperator, TransactionLogger transactionLogger) {
+	@Inject
+	TransferManager(RemoteBankOperator bankOperator, Factory<Notificator> notificatorFactory) {
 		super();
 		this.bankOperator = bankOperator;
-		this.transactionLogger = transactionLogger;
+		this.notificatorFactory = notificatorFactory;
 	}
 
 	//transfer from a local account to a remote one
 	public boolean makeTransfer(Account sourceAccount, String destinationAccountCode, double amount) {
+		Notificator notificator = this.notificatorFactory.create(sourceAccount);
 		if(sourceAccount.getBalance() >= amount) {
 			if(this.bankOperator.transfer(destinationAccountCode, amount)) {
 				sourceAccount.withdraw(amount);
-				this.transactionLogger.logTransaction(
+				notificator.notify(
+					sourceAccount,
 					String.format("Trasferred %f from %s to %s", 
-					amount, sourceAccount.toString(), destinationAccountCode));
+					amount, sourceAccount, destinationAccountCode));
 				return true;
 			} else {
-				this.transactionLogger.logTransaction(
+				notificator.notify(
+					sourceAccount,
 					String.format("Failed to trasfer %f from %s to %s", 
-					amount, sourceAccount.toString(), destinationAccountCode));
+					amount, sourceAccount, destinationAccountCode));
 				return false;
 			}
 		} else {
